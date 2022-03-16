@@ -22,8 +22,8 @@
 ##################################################### Imports #############################################################################
 ###########################################################################################################################################
 # Local Filesystem Configuration
-private_key_location = C:/Users/tyler/Documents/GitHub/birdgate/Archive/private_key.json
-workspace_location =  C:/Users/tyler/Documents/GitHub/birdgate/Archive/tmp/
+private_key_location = "C:/Users/tyler/Documents/GitHub/birdgate/Archive/private_key.json"
+workspace_location =  "C:/Users/tyler/Documents/GitHub/birdgate/Archive/tmp/"
 drive_root_folder_id = "1sIQrDF2WYKp8x8ovLEq_S1WfMb0wZwuJ"
 
 # Google Drive Access
@@ -50,6 +50,7 @@ docs = service.documents()
 ###########################################################################################################################################
 ##################################################### Functions ###########################################################################
 ###########################################################################################################################################
+
 # Download Drive Files from Directory
 def download_drive_dir_files(id=None):
 
