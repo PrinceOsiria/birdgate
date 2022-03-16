@@ -1,10 +1,30 @@
 ###########################################################################################################################################
+##################################################### Notes ###############################################################################
+###########################################################################################################################################
+
+# PAPI-Google © 2021 by Tyler Pryjda is licensed under CC BY-ND 4.0
+
+# Note: I have chosen to disallow derivitives as I wish to continue work on this alone (I am open to collaboration), at my own pace, and
+# don't want to see it cloned and improved without a chance to do the missing work on my own. You are permitted to use this as you wish,
+# but if it is referenced anywhere online, please note that a link to the page's repo is required with the above license.
+
+# Thank you for taking a look at my work! I appreciate it greatly!
+# Tyler Pryjda
+
+
+# ALSO - Be sure you have created a service account and have downloaded it's private key. Also, you will likely have to enable
+# The APIs in google cloud - the ones to activate can be seen in the scopes, under configuration
+
+# LASTLY - this wrapper depends on pydrive, another wrapper which is specifically built for drive, but is no longer maintained
+
+
+###########################################################################################################################################
 ##################################################### Imports #############################################################################
 ###########################################################################################################################################
 # Local Filesystem Configuration
-private_key_location = "C:/Users/tyler/Documents/GitHub/Samsara/dae/Archive/" + "private_key.json"
-bot_workspace_location = "C:/Users/tyler/Documents/GitHub/birdgate/Archive/"
-drive_root_folder_id = "19gVNYWPR4B3h4CduKKKr2qmKUwc0gALK"
+private_key_location = C:/Users/tyler/Documents/GitHub/birdgate/Archive/private_key.json
+workspace_location =  C:/Users/tyler/Documents/GitHub/birdgate/Archive/tmp/
+drive_root_folder_id = "1sIQrDF2WYKp8x8ovLEq_S1WfMb0wZwuJ"
 
 # Google Drive Access
 from pydrive.drive import GoogleDrive
@@ -20,7 +40,8 @@ import google.auth
 gauth = GoogleAuth()
 scope = [
   'https://www.googleapis.com/auth/drive'
- ,'https://www.googleapis.com/auth/documents']
+ ,'https://www.googleapis.com/auth/documents'
+ ,'https://www.googleapis.com/auth/spreadsheets']
 gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(private_key_location, scope)
 service = build('docs', 'v1', credentials=gauth.credentials)
 drive = GoogleDrive(gauth)
@@ -30,7 +51,7 @@ docs = service.documents()
 ##################################################### Functions ###########################################################################
 ###########################################################################################################################################
 # Download Drive Files from Directory
-def download_drive_dir_files(id=None, file_identifier="File Number"):
+def download_drive_dir_files(id=None):
 
 	# Fetch Directory Contents
   file_list = list_drive_directory(id=id)
@@ -63,26 +84,26 @@ def list_drive_directory(id=None):
 
 
 # Create Drive Folder
-def create_drive_folder(id=None, title=None):
-  file1 = drive.CreateFile({
+def create_drive_folder(parent_id=None, title=None):
+  file = drive.CreateFile({
     'title': title, 
-    'parents': [{'id':id}],
+    'parents': [{'id':parent_id}],
     'mimeType': 'application/vnd.google-apps.folder'
     })
-  file1.Upload()
-  return file1["id"]
+  file.Upload()
+  return file["id"]
 
 
 # Trash Drive Folder
 def trash_drive_folder(id=None):
-  file1 = drive.CreateFile({'id':id})
-  file1.Trash()
+  file = drive.CreateFile({'id':id})
+  file.Trash()
 
 
 # Delete Drive Folder
 def delete_drive_folder(id=None):
-  file1 = drive.CreateFile({'id':id})
-  file1.Delete()
+  file = drive.CreateFile({'id':id})
+  file.Delete()
 
 # Copy Drive File
 def copy_drive_file(file_id=None, copy_title=None):
@@ -120,13 +141,8 @@ def get_drive_file(id=None):
 
 # Download Drive File
 def download_drive_file(id=None, file_name=None, directory=None):
-  # Get the file
   file = get_drive_file(id=id)
-  
-  # Non-Optional Output
   print(f"downloading {file['title']} with id {id} from drive")
-
-  # Download the file
   file.GetContentFile(directory + file_name)
 
 
@@ -166,19 +182,22 @@ def get_titles_from_fileList(fileList):
   
 # Get file id
 def get_ids_from_fileList(fileList):
-  titles = []
+  ids = []
   for file in fileList:
     if file["id"]:
-      titles.append(file["id"])
-  return titles
+      ids.append(file["id"])
+  return ids
 
   # Get file mime
+
+
 def get_mimes_from_fileList(fileList):
-  titles = []
+  mimes = []
   for file in fileList:
     if file["mimeType"]:
-      titles.append(file["mimeType"])
-  return titles
+      mimes.append(file["mimeType"])
+  return mimes
+
 
 # Query drive & Internalize the results
 def query_drive(query):
@@ -190,25 +209,26 @@ def query_drive(query):
     mimeTypes = get_mimes_from_fileList(fileList)
     )
 
+
 # Create Document
 def create_drive_document(title=None, parent_id=None):
-  file1 = drive.CreateFile({
+  file = drive.CreateFile({
       'title': title, 
       'parents': [{'id':parent_id}],
       'mimeType': 'application/vnd.google-apps.document'
   })
-  file1.Upload()
-  return file1["id"]
+  file.Upload()
+  return file["id"]
   
 
 # Rename Document
 def rename_drive_document(id=None,title=None):
   files = drive.auth.service.files()
-  file1 = files.get(fileId=id).execute()
-  file1['title'] = title
+  file = files.get(fileId=id).execute()
+  file['title'] = title
   files.update(
     fileId=id,
-    body=file1,
+    body=file,
     newRevision=True
     ).execute()
 
@@ -270,10 +290,10 @@ def insert_text_to_drive_document(id=None, text=None, index=1, link=None, font="
 
 # Upload Files
 def upload_file_to_drive(file=None, directory=None, parent_id=None, file_name=None):
-  file1 = drive.CreateFile({'title': file_name})
-  file1.SetContentFile(directory+file)
-  file1.Upload()
-  return move_drive_file(file_id=file1['id'], parent_id=parent_id)
+  file = drive.CreateFile({'title': file_name})
+  file.SetContentFile(directory+file)
+  file.Upload()
+  return move_drive_file(file_id=file['id'], parent_id=parent_id)
 
 
 
@@ -284,5 +304,5 @@ def create_document_from_template(template_id=None, batch_update=None, target_di
   return file
 
 
-# This stupid shit must be run first - otherwise certain (if not all) api features will not work
+# This stupid #### must be run first - otherwise certain (if not all) api features will not work
 query_drive(f"'{drive_root_folder_id}' in parents")
