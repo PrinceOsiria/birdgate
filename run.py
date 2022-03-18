@@ -7,6 +7,15 @@ from Modules.pydrive_wrapper import *
 
 
 ###########################################################################################################################################
+##################################################### Variables ###########################################################################
+###########################################################################################################################################
+
+# The id for the google sheet which birdgate runs on
+birdgate_id = "1V-a8qZ1ETO6TlET_tlkimXxYHlekjxkWQD9QnUo5uLo"
+
+
+
+###########################################################################################################################################
 ##################################################### Functions ###########################################################################
 ###########################################################################################################################################
 
@@ -15,6 +24,43 @@ def clear_screen():
   for i in range(0,100): print()
 
 
+
+# Get the Status of the Birds
+def get_status_of_birds():
+  pass
+
+
+
+# Launch the Status Menu
+def launch_status_menu(output):
+  
+
+  # Gather Data for Variables
+  birds = get_status_of_birds()
+
+
+  # Clear the Screen
+  clear_screen()
+
+    # Display the Status of all Birds, and all Options
+    if output == "main":
+      print(f"""
+        ######################################################################################################################
+        You currently have {birds['total_num_of_birds']} birds, {birds['num_of_broken_birds']} of which are broken, and {birds['num_of_charging_birds']}
+        of which are charging. This leaves {birds['number_of_deployed_birds']} birds in the market for a total score of {birds['percent_of_deployed_birds']}
+
+
+        Please select an option using the identifying number:
+        0. Alter the Status of a Bird
+        1. View All Birds
+        2. View Broken Birds
+        3. View Charging Birds
+        4. View Deployed Birds
+
+        ######################################################################################################################
+        """)
+
+      selection = input()
 
 # Launch the Main Menu
 def launch_main_menu():
@@ -30,7 +76,7 @@ def launch_main_menu():
       Welcome to Birdgate!
       Please select an option using the identifying number:
 
-      1. Charging and Deploying - Keeps track of which birds are at the shop, and which are available
+      1. Alter Status of Birds - Updates the spreadsheet with any changes
       2. Repairs - Keeps track of which birds have which issues over time, and updates parts list when a repair is completed
       3. Analytics - Take a look at a variety of statistics extrapolated from compass
       4. Quit - Close the Program
@@ -43,7 +89,7 @@ def launch_main_menu():
 
     # Launch the Charging & Deploying Sub-Module
     if selection == "1":
-      print(f"\t{selection} is under maintenance. Please select a different number as listed in the main menu.")
+      launch_status_menu(output="main") # Open the status menu and display it's main screen
 
 
     # Launch the Repairing Sub-Module
@@ -65,35 +111,8 @@ def launch_main_menu():
       print(f"\t{selection} is not a supported option. Please select a number as listed in the main menu.")
 
 
-
-# Check for a local SQL database, as well as records of a google sheet
-def check_for_existing_data():
-
-  # Variables
-  data_verified = True
-
-  ##### WORKSPACE
-  # The id of the sheet must be stored somewhere - a text file can suffice
-
-
-
-  # Return the Results of the Search
-  return data_verified
-
-
-
-# Initialize Birdgate
-def initialize_birdgate():
-  print("Give me  a Google Sheet, then we'll talk!")
-
-
 ###########################################################################################################################################
 ##################################################### Main ################################################################################
 ###########################################################################################################################################
 
-# Checks for the existence of an established google sheet
-if check_for_existing_data():
-  launch_main_menu()
-else:
-  initialize_birdgate()
-
+launch_main_menu()

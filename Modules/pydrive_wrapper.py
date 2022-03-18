@@ -17,6 +17,10 @@
 
 # LASTLY - this wrapper depends on pydrive, another wrapper which is specifically built for drive, but is no longer maintained
 
+# SIDE NOTE - You may notice, when adding images to documents using a batch update, it may fail with a "access forbidden" error.
+# This is an error in the docs API, and can be solved with a try except loop. It's not glamourous, but it works, if encountered
+
+
 
 ###########################################################################################################################################
 ##################################################### Imports #############################################################################
@@ -33,6 +37,7 @@ from googleapiclient.discovery import build
 import google.auth
 
 
+
 ###########################################################################################################################################
 ##################################################### Configuration #######################################################################
 ###########################################################################################################################################
@@ -43,9 +48,12 @@ scope = [
  ,'https://www.googleapis.com/auth/documents'
  ,'https://www.googleapis.com/auth/spreadsheets']
 gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(private_key_location, scope)
-service = build('docs', 'v1', credentials=gauth.credentials)
 drive = GoogleDrive(gauth)
-docs = service.documents()
+docs_service = build('docs', 'v1', credentials=gauth.credentials)
+docs = docs_service.documents()
+sheets_service = build('sheets', 'v4', credentials=gauth.credentials)
+sheets = sheets_service.spreadsheets()
+
 
 ###########################################################################################################################################
 ##################################################### Functions ###########################################################################
@@ -303,6 +311,37 @@ def create_document_from_template(template_id=None, batch_update=None, target_di
   file = copy_drive_file_to_folder(file_id=template_id, parent_id=target_directory, copy_title=file_title)
   docs.batchUpdate(documentId=file, body={'requests': batch_update}).execute()
   return file
+
+
+
+# Get Text in a Range using A1 Notation
+def get_sheets_range(id=None, range=None, major_dimension=None):
+  
+  # Fetch the Range
+  result = sheets.values().get(
+    spreadsheetId = id, 
+    range=range, 
+    majorDimension=major_dimension
+  ).execute()
+  
+  # Return the Results
+  return result.get("values", [])
+
+
+
+# Write Text in a Range using A1 Notation
+def write_sheets_range(id=None, range=None, value_input_option="USER_ENTERED", values=None):
+
+  # Update the Range
+  result = sheets.values().update(
+    spreadsheetId = id, 
+    range = range, valueInputOption=value_input_option, 
+    body = {'values':values}
+  ).execute()
+
+  # Return the Results
+  return result
+
 
 
 # This stupid #### must be run first - otherwise certain (if not all) api features will not work
