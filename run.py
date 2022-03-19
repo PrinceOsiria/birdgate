@@ -27,9 +27,15 @@ def clear_screen():
 
 # Get the Status of the Birds
 def get_status_of_birds():
-  pass
+  
+  # Read the 'at a glance' data from the spreadsheet
+  total_num_of_birds = get_sheets_range(id=birdgate_id, range="'Fleet Data'!B1", major_dimension="COLUMNS")
+  num_of_broken_birds = get_sheets_range(id=birdgate_id, range="'Fleet Data'!B2", major_dimension="COLUMNS")
+  num_of_charging_birds = get_sheets_range(id=birdgate_id, range="'Fleet Data'!B3", major_dimension="COLUMNS")
+  number_of_deployed_birds = get_sheets_range(id=birdgate_id, range="'Fleet Data'!B4", major_dimension="COLUMNS")
+  score = get_sheets_range(id=birdgate_id, range="'Fleet Data'!B5", major_dimension="COLUMNS") 
 
-
+  return dict(total_num_of_birds=total_num_of_birds[0][0], number_of_deployed_birds=number_of_deployed_birds[0][0], score=score[0][0], num_of_charging_birds=num_of_charging_birds[0][0], num_of_broken_birds=num_of_broken_birds[0][0])
 
 # Launch the Status Menu
 def launch_status_menu(output):
@@ -42,25 +48,81 @@ def launch_status_menu(output):
   # Clear the Screen
   clear_screen()
 
-    # Display the Status of all Birds, and all Options
-    if output == "main":
-      print(f"""
-        ######################################################################################################################
-        You currently have {birds['total_num_of_birds']} birds, {birds['num_of_broken_birds']} of which are broken, and {birds['num_of_charging_birds']}
-        of which are charging. This leaves {birds['number_of_deployed_birds']} birds in the market for a total score of {birds['percent_of_deployed_birds']}
+  # Display the Status of all Birds, and all Options
+  if output == "main":
+    print(f"""
+      ######################################################################################################################
+      You currently have {birds['total_num_of_birds']} birds, {birds['num_of_broken_birds']} of which are broken, and {birds['num_of_charging_birds']} of which are charging. 
+      This leaves {birds['number_of_deployed_birds']} birds in the market for a total score of {birds['score']}
 
 
-        Please select an option using the identifying number:
-        0. Alter the Status of a Bird
-        1. View All Birds
-        2. View Broken Birds
-        3. View Charging Birds
-        4. View Deployed Birds
+      Please select an option using the identifying number:
+      0. Alter the Status of a Bird
+      1. View All Birds
+      2. View Broken Birds
+      3. View Charging Birds
+      4. View Deployed Birds
+      5. Add a Bird to the Fleet
+      6. Remove a Bird from the Fleet
+      7. Back
 
-        ######################################################################################################################
-        """)
+      ######################################################################################################################
+      """)
 
-      selection = input()
+    selection = input()
+
+    # Alter the Status of a Bird
+    if selection == "0":
+      print("Please enter the 4 digit code of the bird's status you wish to alter.")
+      bird_code = input()
+
+
+    # View All Birds
+    elif selection == "1":
+      launch_status_menu(output="all_birds")
+
+
+    # View All Broken Birds
+    elif selection == "2":
+      launch_status_menu(output="all_broken_birds")
+
+
+    # View All Charging Birds
+    elif selection == "3":
+      launch_status_menu(output="all_charging_birds")
+
+
+    # View All Deployed Birds
+    elif selection == "4":
+      launch_status_menu(output="all_deployed_birds")
+
+
+    # Add a Bird to the Fleet
+    elif selection == "5":
+      launch_status_menu(output="main")
+
+
+    # Remove a Bird from the Fleet
+    elif selection == "6":
+      launch_status_menu(output="main")
+
+
+    # Return to the Main Menu
+    elif selection == "7":
+      output="exit"
+      launch_main_menu()
+
+    # Loop
+    else:
+      launch_status_menu(output="main")
+
+
+  # Loop
+  if output != "exit":
+    print("\n\n\n Press Enter to Return to the Previous Menu")
+    input()
+    launch_status_menu(output="main")
+
 
 # Launch the Main Menu
 def launch_main_menu():
@@ -104,7 +166,8 @@ def launch_main_menu():
 
     # Exit the Program
     elif selection == "4":
-      break
+      # Ahh, classic crash to exit <3
+      print(0/0)
 
 
     else:
